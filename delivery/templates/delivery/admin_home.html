@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Page</title>
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'delivery/style.css' %}">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+</head>
+<body>
+    <header>
+        <a href="/" class="logo">Meal Buddy Admin</a>
+        <div class="user-nav">
+            <a href="{% url 'signout' %}" class="btn btn-secondary">Sign Out</a>
+        </div>
+    </header>
+
+    <div class="container text-center">
+        <h3>Admin Dashboard</h3>
+        <p class="mb-4">Welcome to the Admin Control Panel.</p>
+
+        <div style="display: flex; flex-direction: column; gap: 1.5rem; max-width: 400px; margin: 0 auto;">
+            <a href="{% url 'open_add_restaurant' %}" class="btn">ADD NEW RESTAURANT</a>
+            <a href="{% url 'open_show_restaurant' %}" class="btn btn-secondary">SHOW & MANAGE RESTAURANTS</a>
+        </div>
+    </div>
+</body>
+
+</html>

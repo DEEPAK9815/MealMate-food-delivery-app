@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'delivery/style.css' %}">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+</head>
+<body>
+    <header>
+        <a href="/" class="logo">Meal Buddy Admin</a>
+        <div class="user-nav">
+            <a href="{% url 'open_add_restaurant' %}" class="btn">Add Restaurant</a>
+            <a href="{% url 'signout' %}" class="btn btn-secondary" style="margin-left: 1rem;">Sign Out</a>
+        </div>
+    </header>
+
+    <div class="container">
+        <h3>Manage Restaurants</h3>
+
+        <table border="1">
+            <thead>
+                <tr>
+                    <th>Restaurant name</th>
+                    <th>Picture</th>
+                    <th>Cuisine</th>
+                    <th>Rating</th>
+                    <th>Operations</th>
+                </tr>
+            </thead>
+            <tbody>
+                {%  for r in restaurantList %}
+                    <tr>
+                        <td>{{ r.name }}</td>
+                        <td>
+                            <img src="{{ r.picture }}" alt="{{ r.name }}">
+                        </td>
+                        <td>{{ r.cuisine }}</td>
+                        <td>{{ r.rating }} ⭐</td>
+                        <td>
+                            <div style="display: flex; flex-direction: column; gap: 0.5rem;">
+                                <a href="{% url 'open_update_restaurant' r.id %}" class="btn" style="padding: 0.4rem 0.8rem; font-size: 0.85rem; background-color: var(--secondary);">Update Info</a>
+                                <a href="{% url 'open_update_menu' r.id %}" class="btn" style="padding: 0.4rem 0.8rem; font-size: 0.85rem;">Update Menu</a>
+                                <a href="{% url 'delete_restaurant' r.id %}" class="btn btn-secondary" style="padding: 0.4rem 0.8rem; font-size: 0.85rem; background-color: #d63031;">Delete</a>
+                            </div>
+                        </td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</body>
+
+</html>

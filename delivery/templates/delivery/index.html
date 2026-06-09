@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Meal Buddy - Your Food, Delivered</title>
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'delivery/style.css' %}">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+
+</head>
+<body class="auth-wrapper">
+    <div class="auth-card">
+        <h1 class="logo">Meal Buddy</h1>
+        <p class="tagline text-center mb-4">Your favorite meals, delivered fast.</p>
+
+        <div class="btn-container" style="display: flex; flex-direction: column; gap: 1rem;">
+            <a href="{% url 'open_signup' %}" class="btn">Create an Account</a>
+            <a href="{% url 'open_signin' %}" class="btn btn-secondary">Sign In</a>
+        </div>
+
+    </div>
+</body>

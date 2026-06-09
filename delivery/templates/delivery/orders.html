@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">    
+    <title>Order Summary</title>
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'delivery/style.css' %}">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+</head>
+<body>
+    <header>
+        <a href="/" class="logo">Meal Buddy</a>
+        <div class="user-nav">
+            <span>Welcome, <strong>{{username}}</strong>!</span>
+        </div>
+    </header>
+
+    <div class="container text-center">
+        <h1 style="color: var(--secondary); font-size: 3rem; margin-bottom: 1rem;">✅</h1>
+        <h3>Order Placed Successfully!</h3>
+        <p class="mb-4">Thank you for your order, {{ username }}!</p>
+
+        <div style="background: var(--gray-100); padding: 1.5rem; border-radius: 12px; margin-bottom: 2rem; text-align: left;">
+            <h4 style="margin-bottom: 0.5rem;">Delivery Address</h4>
+            <p>{{ customer.address }}</p>
+        </div>
+
+        <p class="mb-4">Your order will be delivered to this location shortly. Thank you for choosing Meal Mate!</p>
+
+        {% if cart_items %}
+            <a href="{% url 'view_menu' cart_items.0.restaurant.id username %}" class="btn">Back to Menu</a>
+        {% else %}
+
+            <a href="/" class="btn btn-secondary">Back to Home</a>
+        {% endif %}
+    </div>
+</body>
+
+</html>

@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'delivery/style.css' %}">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+</head>
+<body>
+    <header>
+        <a href="/" class="logo">Meal Buddy Admin</a>
+        <div class="user-nav">
+            <a href="{% url 'open_show_restaurant' %}" class="btn btn-secondary">Back to Restaurants</a>
+        </div>
+    </header>
+
+    <div class="container">
+        <h3>Manage Menu for {{ restaurant.name }}</h3>
+
+        <!-- show current menu -->
+        <table border="1">
+            <thead>
+                <tr>
+                    <th>Item name</th>
+                    <th>Picture</th>
+                    <th>Description</th>
+                    <th>Price</th>
+                    <th>Is Veg?</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                {%  for item in itemList %}
+                    <tr>
+                        <td>{{ item.name }}</td>
+                        <td>
+                            <img src="{{ item.picture }}" alt="{{ item.name }}">
+                        </td>
+                        <td>{{ item.description }}</td>
+                        <td>₹{{ item.price }}</td>
+                        <td>{% if item.vegeterian %}🟢 Yes{% else %}🔴 No{% endif %}</td>
+                        <td>
+                            <a href="{% url 'delete_menu_item' item.id restaurant.id %}" class="btn btn-secondary" style="background-color: #d63031; padding: 0.4rem 0.8rem; font-size: 0.85rem;">Delete</a>
+                        </td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+
+        <hr style="margin: 3rem 0; border: 0; border-top: 2px solid var(--gray-200);">
+
+        <!-- add food item (form) -->
+        <h3>Add Menu Item</h3>
+        <form action="{% url 'update_menu' restaurant.id %}" method="post" style="max-width: 500px;">
+            {% csrf_token %}
+            <div class="form-group">
+                <label for="name">Item Name</label>
+                <input type="text" id="name" name="name" required placeholder="e.g. Cheese Pizza">
+            </div>
+
+            <div class="form-group">
+                <label for="description">Description</label>
+                <textarea id="description" name="description" required placeholder="Describe the dish..."></textarea>
+            </div>
+
+            <div class="form-group">
+                <label for="price">Price (₹)</label>
+                <input type="number" id="price" name="price" step="0.01" required>
+            </div>
+
+            <div class="form-group" style="flex-direction: row; align-items: center; gap: 0.5rem;">
+                <input type="checkbox" id="vegeterian" name="vegeterian" style="width: auto;">
+                <label for="vegeterian" style="margin: 0;">Vegetarian Dish</label>
+            </div>
+
+            <div class="form-group">
+                <label for="picture">Image URL</label>
+                <input type="url" id="picture" name="picture" placeholder="Enter image URL">
+            </div>
+
+            <button type="submit" class="btn">Add Item</button>
+        </form>
+    </div>
+</body>
+
+</html>

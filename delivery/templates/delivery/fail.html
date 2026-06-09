@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'delivery/style.css' %}">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+</head>
+<body class="auth-wrapper">
+    <div class="auth-card text-center">
+        <h1 style="color: var(--primary); font-size: 3rem;">❌</h1>
+        <h3>Login Failed!</h3>
+        <p class="mb-4">Invalid username or password. Please try again.</p>
+        <a href="{% url 'open_signin' %}" class="btn">Back to Sign In</a>
+    </div>
+</body>
+
+</html>

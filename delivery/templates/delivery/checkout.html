@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+{% load static %}
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Checkout</title>
+    <link rel="stylesheet" href="{% static 'delivery/style.css' %}">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+</head>
+<body>
+    <header>
+        <a href="/" class="logo">Meal Buddy</a>
+        <div class="user-nav">
+            <span>Welcome, <strong>{{username}}</strong>!</span>
+        </div>
+    </header>
+
+    <div class="container" style="max-width: 600px;">
+        <h3>Checkout Summary</h3>
+
+        {% if error %}
+            <div class="alert alert-error">{{ error }}</div>
+        {% else %}
+
+        <table border="1">
+            <thead>
+                <tr>
+                    <th>Item</th>
+                    <th>Price</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for item in cart_items %}
+                <tr>
+                    <td>{{ item.name }}</td>
+                    <td>₹{{ item.price }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        
+        <div class="total-section">
+            <p>Total: ₹{{ total_price }}</p>
+            <button id="rzp-button" class="btn" style="width: 100%; margin-top: 1.5rem;">Pay with Razorpay</button>
+        </div>
+        {% endif %}
+    </div>
+
+    <script>
+        var options = {
+            "key": "{{ razorpay_key_id }}",  // Razorpay API key from view
+            "amount": "{{ total_price|floatformat:2|add:'0.00'|floatformat:2 }}00", // Amount in paisa
+            "currency": "INR",
+            "name": "Meal Buddy",
+            "description": "Order Payment",
+            "order_id": "{{ order_id }}",  // Razorpay order ID
+            "handler": function (response) {
+                alert("Payment Successful!");
+                window.location.href = "{% url 'orders' username %}";
+            },
+            "prefill": {
+                "name": "{{ username }}",
+                "email": "customer@example.com",
+                "contact": "9999999999"
+            },
+            "theme": {
+                "color": "#FF4757"
+            }
+        };
+        var rzp = new Razorpay(options);
+    
+        document.getElementById('rzp-button').onclick = function(e) {
+            rzp.open();
+            e.preventDefault();
+        }
+    </script>
+</body>
+</html>
