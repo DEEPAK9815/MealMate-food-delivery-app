@@ -1,9 +1,9 @@
 from django.shortcuts import render, get_object_or_404
-from django.http import HttpResponse
-
-from .models import Customer, Restaurant, Item, Cart
-
+from django.http import HttpResponse, JsonResponse
+import json
 import razorpay
+
+from .models import Customer, Restaurant, Item, Cart, CartItem
 from django.conf import settings
 
 # Create your views here.
@@ -148,50 +148,98 @@ def update_menu(request, restaurant_id):
     return render(request, 'delivery/admin_home.html')
 
 def view_menu(request, restaurant_id, username):
-    restaurant = Restaurant.objects.get(id = restaurant_id)
+    restaurant = get_object_or_404(Restaurant, id=restaurant_id)
     itemList = restaurant.items.all()
-    #itemList = Item.objects.all()
-    return render(request, 'delivery/customer_menu.html'
-                  ,{"itemList" : itemList,
-                     "restaurant" : restaurant, 
-                     "username":username})
+    customer = Customer.objects.filter(username=username).first()
+    
+    cart_quantities = {}
+    if customer:
+        cart = Cart.objects.filter(customer=customer).first()
+        if cart:
+            cart_quantities = {ci.item_id: ci.quantity for ci in cart.cart_items.all()}
+            
+    json_cart_quantities = json.dumps(cart_quantities)
+    
+    return render(request, 'delivery/customer_menu.html', {
+        "itemList": itemList,
+        "restaurant": restaurant, 
+        "username": username,
+        "json_cart_quantities": json_cart_quantities
+    })
 
 def add_to_cart(request, item_id, username):
-    item = Item.objects.get(id = item_id)
-    customer = Customer.objects.get(username = username)
-
-    cart, created = Cart.objects.get_or_create(customer = customer)
-
-    cart.items.add(item)
-
-    return HttpResponse('added to cart')
+    item = get_object_or_404(Item, id=item_id)
+    customer = get_object_or_404(Customer, username=username)
+    cart, created = Cart.objects.get_or_create(customer=customer)
+    
+    cart_item, ci_created = CartItem.objects.get_or_create(cart=cart, item=item)
+    if not ci_created:
+        cart_item.quantity += 1
+        cart_item.save()
+        
+    if request.GET.get('ajax') == '1':
+        total_items = sum(ci.quantity for ci in cart.cart_items.all())
+        return JsonResponse({
+            'success': True,
+            'quantity': cart_item.quantity,
+            'total_price': cart.total_price(),
+            'cart_total_items': total_items
+        })
+        
+    return show_cart(request, username)
 
 def remove_from_cart(request, item_id, username):
-    item = Item.objects.get(id = item_id)
-    customer = Customer.objects.get(username = username)
-    cart = Cart.objects.get(customer = customer)
-    cart.items.remove(item)
+    item = get_object_or_404(Item, id=item_id)
+    customer = get_object_or_404(Customer, username=username)
+    cart = Cart.objects.filter(customer=customer).first()
+    
+    quantity = 0
+    if cart:
+        cart_item = CartItem.objects.filter(cart=cart, item=item).first()
+        if cart_item:
+            if cart_item.quantity > 1:
+                cart_item.quantity -= 1
+                cart_item.save()
+                quantity = cart_item.quantity
+            else:
+                cart_item.delete()
+                quantity = 0
+                
+    if request.GET.get('ajax') == '1':
+        total_items = sum(ci.quantity for ci in cart.cart_items.all()) if cart else 0
+        total_price = cart.total_price() if cart else 0
+        return JsonResponse({
+            'success': True,
+            'quantity': quantity,
+            'total_price': total_price,
+            'cart_total_items': total_items
+        })
+        
     return show_cart(request, username)
 
 def delete_menu_item(request, item_id, restaurant_id):
-    item = Item.objects.get(id = item_id)
+    item = get_object_or_404(Item, id=item_id)
     item.delete()
     return open_update_menu(request, restaurant_id)
 
 def show_cart(request, username):
-    customer = Customer.objects.get(username = username)
+    customer = get_object_or_404(Customer, username=username)
     cart = Cart.objects.filter(customer=customer).first()
-    items = cart.items.all() if cart else []
+    cart_items = cart.cart_items.all() if cart else []
     total_price = cart.total_price() if cart else 0
 
-    return render(request, 'delivery/cart.html',{"itemList" : items, "total_price" : total_price, "username":username})
+    return render(request, 'delivery/cart.html', {
+        "cart_items": cart_items, 
+        "total_price": total_price, 
+        "username": username
+    })
 
 # Checkout View
 def checkout(request, username):
     # Fetch customer and their cart
     customer = get_object_or_404(Customer, username=username)
     cart = Cart.objects.filter(customer=customer).first()
-    cart_items = cart.items.all() if cart else []
+    cart_items = cart.cart_items.all() if cart else []
     total_price = cart.total_price() if cart else 0
 
     if total_price == 0:
@@ -227,12 +275,12 @@ def orders(request, username):
     cart = Cart.objects.filter(customer=customer).first()
 
     # Fetch cart items and total price before clearing the cart
-    cart_items = cart.items.all() if cart else []
+    cart_items = cart.cart_items.all() if cart else []
     total_price = cart.total_price() if cart else 0
 
     # Clear the cart after fetching its details
     if cart:
-        cart.items.clear()
+        cart.cart_items.all().delete()
 
     return render(request, 'delivery/orders.html', {
         'username': username,

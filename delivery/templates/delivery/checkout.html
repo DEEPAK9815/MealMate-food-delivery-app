@@ -30,14 +30,16 @@
             <thead>
                 <tr>
                     <th>Item</th>
-                    <th>Price</th>
+                    <th>Qty</th>
+                    <th>Subtotal</th>
                 </tr>
             </thead>
             <tbody>
-                {% for item in cart_items %}
+                {% for cart_item in cart_items %}
                 <tr>
-                    <td>{{ item.name }}</td>
-                    <td>₹{{ item.price }}</td>
+                    <td>{{ cart_item.item.name }}</td>
+                    <td>{{ cart_item.quantity }}</td>
+                    <td>₹{{ cart_item.total_price }}</td>
                 </tr>
                 {% endfor %}
             </tbody>

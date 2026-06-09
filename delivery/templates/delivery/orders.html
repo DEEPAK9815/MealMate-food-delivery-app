@@ -31,7 +31,7 @@
         <p class="mb-4">Your order will be delivered to this location shortly. Thank you for choosing Meal Mate!</p>
 
         {% if cart_items %}
-            <a href="{% url 'view_menu' cart_items.0.restaurant.id username %}" class="btn">Back to Menu</a>
+            <a href="{% url 'view_menu' cart_items.0.item.restaurant.id username %}" class="btn">Back to Menu</a>
         {% else %}
 
             <a href="/" class="btn btn-secondary">Back to Home</a>

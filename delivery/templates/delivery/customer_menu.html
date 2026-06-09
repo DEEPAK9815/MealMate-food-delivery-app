@@ -44,15 +44,74 @@
                         <td>₹{{ item.price }}</td>
                         <td>{% if item.vegeterian %}🟢 Veg{% else %}🔴 Non-Veg{% endif %}</td>
                         <td>
-                            <a href="{% url 'add_to_cart' item.id username %}" class="btn" style="padding: 0.5rem 1rem; font-size: 0.9rem;">
-                                Add to cart
-                            </a>
+                            <div class="cart-control" data-item-id="{{ item.id }}">
+                                <button class="btn add-btn" onclick="addToCart({{ item.id }})">ADD</button>
+                                <div class="qty-btn-group" style="display: none;">
+                                    <button class="btn-qty minus" onclick="removeFromCart({{ item.id }})">−</button>
+                                    <span class="qty-val">0</span>
+                                    <button class="btn-qty plus" onclick="addToCart({{ item.id }})">+</button>
+                                </div>
+                            </div>
                         </td>
                     </tr>
                 {% endfor %}
             </tbody>
         </table>
     </div>
-</body>
 
+    <script>
+        const cartQuantities = {{ json_cart_quantities|safe }};
+        const username = "{{ username }}";
+
+        document.addEventListener("DOMContentLoaded", () => {
+            document.querySelectorAll(".cart-control").forEach(control => {
+                const itemId = parseInt(control.getAttribute("data-item-id"));
+                const qty = cartQuantities[itemId] || 0;
+                updateControlUI(control, qty);
+            });
+        });
+
+        function updateControlUI(control, qty) {
+            const addBtn = control.querySelector(".add-btn");
+            const qtyGroup = control.querySelector(".qty-btn-group");
+            const qtyVal = control.querySelector(".qty-val");
+
+            if (qty > 0) {
+                addBtn.style.display = "none";
+                qtyGroup.style.display = "flex";
+                qtyVal.textContent = qty;
+            } else {
+                addBtn.style.display = "block";
+                qtyGroup.style.display = "none";
+                qtyVal.textContent = "0";
+            }
+        }
+
+        function addToCart(itemId) {
+            const url = `/add_to_cart/${itemId}/${username}?ajax=1`;
+            fetch(url)
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        const control = document.querySelector(`.cart-control[data-item-id="${itemId}"]`);
+                        updateControlUI(control, data.quantity);
+                    }
+                })
+                .catch(err => console.error("Error adding to cart:", err));
+        }
+
+        function removeFromCart(itemId) {
+            const url = `/remove_from_cart/${itemId}/${username}?ajax=1`;
+            fetch(url)
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        const control = document.querySelector(`.cart-control[data-item-id="${itemId}"]`);
+                        updateControlUI(control, data.quantity);
+                    }
+                })
+                .catch(err => console.error("Error removing from cart:", err));
+        }
+    </script>
+</body>
 </html>
