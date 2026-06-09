@@ -76,10 +76,27 @@ WSGI_APPLICATION = 'meal_buddy.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/5.1/ref/settings/#databases
 import dj_database_url
+import shutil
+
+# Check if running in Vercel environment
+IS_VERCEL = 'VERCEL' in os.environ
+
+if IS_VERCEL:
+    db_path = '/tmp/db.sqlite3'
+    # Copy the database from read-only project folder to /tmp if it doesn't exist
+    source_db = BASE_DIR / 'db.sqlite3'
+    if source_db.exists() and not os.path.exists(db_path):
+        try:
+            shutil.copy(source_db, db_path)
+            os.chmod(db_path, 0o666)
+        except Exception as e:
+            print(f"Error copying database to /tmp: {e}")
+else:
+    db_path = BASE_DIR / 'db.sqlite3'
 
 DATABASES = {
     'default': dj_database_url.config(
-        default=f"sqlite:///{BASE_DIR / 'db.sqlite3'}",
+        default=f"sqlite:///{db_path}",
         conn_max_age=600
     )
 }
