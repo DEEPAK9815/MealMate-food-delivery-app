@@ -201,13 +201,12 @@ img {
 /* Auth Pages (Index, Signin, Signup) Specifics */
 .auth-wrapper {
     display: flex;
-    align-items: center;
     justify-content: center;
     min-height: 100vh;
     padding: 2rem;
     background: radial-gradient(circle at top left, #FF4757 0%, #2F3542 100%);
     position: relative;
-    overflow: hidden;
+    overflow-y: auto;
 }
 
 .auth-wrapper::before {
@@ -231,6 +230,7 @@ img {
     max-width: 480px;
     border: 1px solid rgba(255, 255, 255, 0.2);
     animation: fadeIn 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+    margin: auto;
 }
 
 .auth-card h1, .auth-card h3 {
